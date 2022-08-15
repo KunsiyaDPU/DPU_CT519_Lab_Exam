@@ -1,0 +1,42 @@
+version: '3.9'
+services:
+  sv_web:
+    container_name: web
+    build:
+      context: ./
+      dockerfile: dockerfile-php
+    depends_on:
+      - sv_db
+    restart: always
+    volumes:
+           - ./App_A/:/var/www/html/
+    ports:
+        - '80:80'
+    networks:
+       vpcbr:
+         ipv4_address: 10.1.1.11
+
+  sv_db:
+    image: mysql:5.6
+    volumes:
+    - ./App_A/mysql-backup/0009_database.sql:/docker-entrypoint-initdb.d/0009_database.sql:ro
+    container_name: db
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: p@ssword
+      MYSQL_DATABASE: 0009_Lab_Exam
+      MYSQL_USER: KSY
+      MYSQL_PASSWORD: p@ssword
+    ports:
+      - '3306:3306'
+    networks:
+       vpcbr:
+         ipv4_address: 10.1.1.22
+
+networks:
+  vpcbr:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 10.1.1.0/24
+          gateway: 10.1.1.1
